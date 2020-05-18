@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Helpers &#8212; httpsuite 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="RFC" href="RFC.html" />
+    <link rel="prev" title="Core" href="core.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-httpsuite.helpers">
+<span id="helpers"></span><h1>Helpers<a class="headerlink" href="#module-httpsuite.helpers" title="Permalink to this headline">¶</a></h1>
+<p>Collection of helper classes used through the project.</p>
+<p>This module contain helper classes that are used throughout <code class="docutils literal notranslate"><span class="pre">httpsuite</span></code>.</p>
+<hr class="docutils" />
+<div class="section" id="item">
+<h2>Item<a class="headerlink" href="#item" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="httpsuite.helpers.Item">
+<em class="property">class </em><code class="sig-name descname">Item</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/httpsuite/helpers.html#Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#httpsuite.helpers.Item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Item provides an interface for <code class="docutils literal notranslate"><span class="pre">string</span></code>, <code class="docutils literal notranslate"><span class="pre">byte</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, and <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>Item is an interface between the original object (<code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>,
+<code class="docutils literal notranslate"><span class="pre">None</span></code>) that allows the user to do object-agnostic equality checks
+(i.e. <code class="docutils literal notranslate"><span class="pre">Item(200)</span> <span class="pre">==</span> <span class="pre">Item(&quot;200&quot;)</span> <span class="pre">==</span> <span class="pre">Item(b&quot;200&quot;)</span></code>), as well as retrieve the
+original item as either a <code class="docutils literal notranslate"><span class="pre">string</span></code> or <code class="docutils literal notranslate"><span class="pre">bytes</span></code> object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">Item</span></code> will automatically convert the passed item into a <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
+object internally.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>item</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>bytes</em><em>, </em><em>int</em><em>, </em><a class="reference internal" href="#httpsuite.helpers.Item" title="httpsuite.helpers.Item"><em>Item</em></a><em>]</em>) – input to be stored.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="httpsuite.helpers.Item.string">
+<em class="property">property </em><code class="sig-name descname">string</code><a class="headerlink" href="#httpsuite.helpers.Item.string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation of the <code class="docutils literal notranslate"><span class="pre">Item</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>String representation of the <code class="docutils literal notranslate"><span class="pre">Item</span></code> object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="httpsuite.helpers.Item.raw">
+<em class="property">property </em><code class="sig-name descname">raw</code><a class="headerlink" href="#httpsuite.helpers.Item.raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bytes representation of the <code class="docutils literal notranslate"><span class="pre">Item</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Bytes representation of the <code class="docutils literal notranslate"><span class="pre">Item</span></code> object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<hr class="docutils" />
+<div class="section" id="headers">
+<h2>Headers<a class="headerlink" href="#headers" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="httpsuite.helpers.Headers">
+<em class="property">class </em><code class="sig-name descname">Headers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/httpsuite/helpers.html#Headers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#httpsuite.helpers.Headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of a HTTP request or response headers object.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Headers</span></code>, similiar to <code class="docutils literal notranslate"><span class="pre">Item</span></code>, provides an interface for a HTTP request and
+response header, allowing easy manipulation, parsing, adding, and returning
+<code class="docutils literal notranslate"><span class="pre">str</span></code> and <code class="docutils literal notranslate"><span class="pre">bytes</span></code> version of itself. <code class="docutils literal notranslate"><span class="pre">bytes</span></code> version is escaped with <code class="docutils literal notranslate"><span class="pre">\r\n</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><a class="reference internal" href="#httpsuite.helpers.Headers" title="httpsuite.helpers.Headers"><em>Headers</em></a><em>]</em>) – <cite>Headers</cite> value in dictionary or
+<cite>Headers</cite> object.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="httpsuite.helpers.Headers.string">
+<em class="property">property </em><code class="sig-name descname">string</code><a class="headerlink" href="#httpsuite.helpers.Headers.string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation of the <code class="docutils literal notranslate"><span class="pre">Headers</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>String representation of the <code class="docutils literal notranslate"><span class="pre">Headers</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="httpsuite.helpers.Headers.raw">
+<em class="property">property </em><code class="sig-name descname">raw</code><a class="headerlink" href="#httpsuite.helpers.Headers.raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bytes representation of the <code class="docutils literal notranslate"><span class="pre">Headers</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method will return <code class="docutils literal notranslate"><span class="pre">Headers</span></code> with <code class="docutils literal notranslate"><span class="pre">\r\n</span></code> escape characters.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Bytes representation of the <code class="docutils literal notranslate"><span class="pre">Headers</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<hr class="docutils" />
+<div class="section" id="twowayfrozendict">
+<h2>TwoWayFrozenDict<a class="headerlink" href="#twowayfrozendict" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="httpsuite.helpers.TwoWayFrozenDict">
+<em class="property">class </em><code class="sig-name descname">TwoWayFrozenDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/httpsuite/helpers.html#TwoWayFrozenDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#httpsuite.helpers.TwoWayFrozenDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A frozen dictionary with two-way capabilities.</p>
+<p>Interface that locks a dictionary in place after initilization, and provides
+accessability via key and value.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All the keys and values inside <code class="docutils literal notranslate"><span class="pre">TwoWayFrozenDict</span></code> are <code class="docutils literal notranslate"><span class="pre">Item</span></code> objects,
+which allows easy comparissions to check if an item is inside
+the <code class="docutils literal notranslate"><span class="pre">TwoWayFrozenDict</span></code> mapping.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Dictionary that will use this interface.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<hr class="docutils" />
+<div class="section" id="frozenset">
+<h2>FrozenSet<a class="headerlink" href="#frozenset" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="httpsuite.helpers.FrozenSet">
+<em class="property">class </em><code class="sig-name descname">FrozenSet</code><a class="reference internal" href="../_modules/httpsuite/helpers.html#FrozenSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#httpsuite.helpers.FrozenSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A frozen set with pretty-print.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">httpsuite</a></h1>
+
+
+
+<p class="blurb">Collection of tools to parse, manipulate, and compile raw HTTP messages.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=synchronizing&repo=httpsuite&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../writeups/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writeups/Basic Use.html">Basic Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writeups/Advance Use.html">Advance Use</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="core.html">Core</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Helpers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#item">Item</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#headers">Headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#twowayfrozendict">TwoWayFrozenDict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#frozenset">FrozenSet</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="RFC.html">RFC</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../misc/Versions.html">Versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/License.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="core.html" title="previous chapter">Core</a></li>
+      <li>Next: <a href="RFC.html" title="next chapter">RFC</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Felipe Faria.
+      
+      |
+      <a href="../_sources/module/helpers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

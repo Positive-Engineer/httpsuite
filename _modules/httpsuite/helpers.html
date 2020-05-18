@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>httpsuite.helpers &#8212; httpsuite 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for httpsuite.helpers</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot; Collection of helper classes used through the project.</span>
+
+<span class="sd">This module contain helper classes that are used throughout ``httpsuite``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">httpsuite.info</span> <span class="kn">import</span> <span class="n">ENCODE</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
+
+
+<div class="viewcode-block" id="Item"><a class="viewcode-back" href="../../module/helpers.html#httpsuite.helpers.Item">[docs]</a><span class="k">class</span> <span class="nc">Item</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Item provides an interface for ``string``, ``byte``, ``int``, and ``None``.</span>
+
+<span class="sd">    Item is an interface between the original object (``str``, ``bytes``, ``int``,</span>
+<span class="sd">    ``None``) that allows the user to do object-agnostic equality checks</span>
+<span class="sd">    (i.e. ``Item(200) == Item(&quot;200&quot;) == Item(b&quot;200&quot;)``), as well as retrieve the</span>
+<span class="sd">    original item as either a ``string`` or ``bytes`` object.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        ``Item`` will automatically convert the passed item into a ``bytes``</span>
+<span class="sd">        object internally.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        item (Union[str, bytes, int, Item]): input to be stored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_item&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Item</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Item</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;item must inherit from str, bytes, or int.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">item</span>
+        <span class="k">elif</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Item</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">raw</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``Item``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the ``Item`` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Bytes representation of the ``Item``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bytes: Bytes representation of the ``Item`` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Compares ``Item`` with passed ``other``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Union[str, bytes, int, Item]): ``Item`` to be compared.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: Represents if the ``Item`` is equal to ``other``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">==</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Adds ``Item`` with passed ``other`` and returns new ``Item``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Union[str, bytes, int, Item]): ``Item`` to be added.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Item: Returns new ``Item`` that is the addition of the current, and</span>
+<span class="sd">            the passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Item</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_item</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span>
+
+        <span class="k">return</span> <span class="n">Item</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">+</span> <span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Adds ``Item`` with passed ``other`` and returns ``self`` after addition.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Union[str, bytes, int, Item]): ``Item`` to be added.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Item: Returns current ``Item`` after addition with the passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Item</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_item</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">other</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">+=</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Hash representation of the current ``Item``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Hash representation of the ``Item``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``Item`` object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the `Item` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span></div>
+
+
+<div class="viewcode-block" id="Headers"><a class="viewcode-back" href="../../module/helpers.html#httpsuite.helpers.Headers">[docs]</a><span class="k">class</span> <span class="nc">Headers</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Representation of a HTTP request or response headers object.</span>
+
+<span class="sd">    ``Headers``, similiar to ``Item``, provides an interface for a HTTP request and</span>
+<span class="sd">    response header, allowing easy manipulation, parsing, adding, and returning</span>
+<span class="sd">    ``str`` and ``bytes`` version of itself. ``bytes`` version is escaped with ``\r\n``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value (Union[dict, Headers]): `Headers` value in dictionary or</span>
+<span class="sd">                                      `Headers` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">]</span> <span class="o">=</span> <span class="p">{})</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Headers</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;headers can only be of type that inherits from &#39;dict&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">Item</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bytes&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Compiles the ``Headers`` into the passed format.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            When the format is ``bytes`` this function will return the headers</span>
+<span class="sd">            in bytes format with the correct HTTP escape characters ``\r\n``.</span>
+<span class="sd">            This does **not** occur when ``string`` is passed as the format (new</span>
+<span class="sd">            lines are created instead).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            format (str): Either ``bytes`` or ``string``. Formats the return</span>
+<span class="sd">                          accordingly to the passed format.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[str, bytes]: String or bytes representation of the ``Headers``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;bytes&quot;</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;%b: %b</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``Headers``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the ``Headers``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Bytes representation of the ``Headers``.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            This method will return ``Headers`` with ``\r\n`` escape characters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bytes: Bytes representation of the ``Headers``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Headers</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Adds item with passed ``other`` and returns new ``Headers``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Union[dict, Headers]): ``Headers`` or ``dict`` to be added.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Headers: New resulting ``Headers`` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Headers</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can only add with type that inherits from &#39;dict&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Headers</span><span class="p">):</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">current</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Headers</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">itemized_values</span> <span class="o">=</span> <span class="p">{</span><span class="n">Item</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">Item</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">copy</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">itemized_values</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">copy</span>
+
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Headers</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Adds current headers with passed `other` and returns self.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Union[dict, Headers]): ``Headers`` or ``dict`` to be added.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Headers: Self after addition to itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Headers</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can only add with type that inherits from &#39;dict&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="n">itemized_values</span> <span class="o">=</span> <span class="p">{</span><span class="n">Item</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">Item</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">itemized_values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Sets a new attribute inside ``Headers``.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            If ``_`` is present in the key it gets replaced with ``-``. This is</span>
+<span class="sd">            so the ``headers.User_Agent`` is equivalent to ``headers[&#39;User-Agent&#39;]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">key_mod</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">Item</span><span class="p">(</span><span class="n">key_mod</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Gets attribute inside ``Headers``.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            If ``_`` is present in the key it gets replaced with ``-``. This is</span>
+<span class="sd">            so the ``headers.User_Agent`` is equivalent to ``headers[&#39;User-Agent&#39;]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Item: `Item` corresponding to the passed key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">key_mod</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">ENCODE</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">key_mod</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key_mod</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``Headers``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the ``Headers``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span></div>
+
+
+<div class="viewcode-block" id="TwoWayFrozenDict"><a class="viewcode-back" href="../../module/helpers.html#httpsuite.helpers.TwoWayFrozenDict">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TwoWayFrozenDict</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A frozen dictionary with two-way capabilities.</span>
+
+<span class="sd">    Interface that locks a dictionary in place after initilization, and provides</span>
+<span class="sd">    accessability via key and value.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        All the keys and values inside ``TwoWayFrozenDict`` are ``Item`` objects,</span>
+<span class="sd">        which allows easy comparissions to check if an item is inside</span>
+<span class="sd">        the ``TwoWayFrozenDict`` mapping.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (dict): Dictionary that will use this interface.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">Item</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">Item</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">Item</span><span class="p">(</span><span class="n">v</span><span class="p">):</span> <span class="n">Item</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+    <span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Gets attribute inside ``Headers``.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            If ``_`` is present in the key it gets replaced with a blank space.</span>
+<span class="sd">            This is so the ``frozendict.No_Content`` is equivalent to</span>
+<span class="sd">            ``frozendict[&#39;No Content&#39;]``. The only exception is when it is an</span>
+<span class="sd">            integer following ``_``, ``frozendict._200``, which will be interpret</span>
+<span class="sd">            as ``frozendict[200]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Item: ``Item`` corresponding to the passed key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">):</span>
+            <span class="n">status_message</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="n">status_code</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">status_message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">status_message</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">status_code</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">status_code</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Checks if the key is inside ``TwoWayFrozenDict``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: Boolean corresponding to if the passed key is inside the</span>
+<span class="sd">            ``TwoWayFrozenDict``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">Item</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Retrieves item that&#39;s mapped with the passed key.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Item: ``Item`` corresponding to the passed key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">Item</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot; Returns an iterable representation of the ``TwoWayFrozenDict``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Iterable[Item]: Iterable of items.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Returns the length of the ``TwoWayFrozenDict``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Length of the ``TwoWayFrozenDict``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``TwoWayFrozenDict``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the ``TwoWayFrozenDict``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">({</span><span class="n">k</span><span class="o">.</span><span class="n">string</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">string</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
+
+
+<div class="viewcode-block" id="FrozenSet"><a class="viewcode-back" href="../../module/helpers.html#httpsuite.helpers.FrozenSet">[docs]</a><span class="k">class</span> <span class="nc">FrozenSet</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A frozen set with pretty-print. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``FrozenSet``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the ``FrozenSet``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">({</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">})</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">httpsuite</a></h1>
+
+
+
+<p class="blurb">Collection of tools to parse, manipulate, and compile raw HTTP messages.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=synchronizing&repo=httpsuite&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Basic Use.html">Basic Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Advance Use.html">Advance Use</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module/core.html">Core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module/helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module/RFC.html">RFC</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/Versions.html">Versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/License.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Felipe Faria.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

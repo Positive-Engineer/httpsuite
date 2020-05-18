@@ -1,0 +1,699 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>httpsuite.core &#8212; httpsuite 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for httpsuite.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Interfaces to parse, manipulate, and compile raw HTTP messages. &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">httpsuite.helpers</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">Headers</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">NoReturn</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+
+
+<div class="viewcode-block" id="Message"><a class="viewcode-back" href="../../module/core.html#httpsuite.core.Message">[docs]</a><span class="k">class</span> <span class="nc">Message</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Base class representing an HTTP message.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        ``Messages`` is an abstract class that both ``Request`` and ``Response``</span>
+<span class="sd">        inherit from. ``Message`` should not be used directly.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        first_line: Union[str, bytes, Item, None]: First line of the the request or response</span>
+<span class="sd">                                                   message; either the request line or the</span>
+<span class="sd">                                                   status line, respectfully.</span>
+<span class="sd">        headers: Union[dict, Headers, None]: Dictionary or ``Headers`` that represents</span>
+<span class="sd">                                             the requests or response&#39;s headers.</span>
+<span class="sd">        body: Union[str, bytes, Item, None]: Body of the message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_first_line&quot;</span><span class="p">,</span> <span class="s2">&quot;_headers&quot;</span><span class="p">,</span> <span class="s2">&quot;_body&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">first_line</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">headers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">body</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">first_line</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">headers</span><span class="p">,</span> <span class="n">Headers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">headers</span>
+        <span class="k">elif</span> <span class="n">headers</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">Headers</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">Headers</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">arrow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Compiles the ``Message`` into the given format.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The ``arrow`` argument only works when ``format`` is ``string``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            format (str): Format that represents the return type. Either ``string``</span>
+<span class="sd">                          or ``bytes``.</span>
+<span class="sd">            arrow (str): String to append to the beginning of every line.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[str, bytes]: String or bytes representation of the ``Message``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="s2">&quot;bytes&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;format must either be str, or byte.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile_first_line</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;bytes&quot;</span><span class="p">:</span>
+            <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span><span class="o">.</span><span class="n">raw</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="o">.</span><span class="n">raw</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+        <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span><span class="p">:</span>
+            <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span><span class="o">.</span><span class="n">string</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="o">.</span><span class="n">string</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;bytes&quot;</span><span class="p">:</span>
+                <span class="n">headers</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;%b: %b</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span><span class="p">:</span>
+                <span class="n">headers</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;bytes&quot;</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;%b</span><span class="se">\r\n</span><span class="s2">%b</span><span class="se">\r\n</span><span class="s2">%b&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">first_line</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="se">\r\n</span><span class="si">{}</span><span class="se">\r\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first_line</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span> <span class="ow">and</span> <span class="n">arrow</span><span class="p">:</span>
+            <span class="n">arrow_msg</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arrow</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">msg</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">line</span>
+            <span class="p">]</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arrow_msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">msg</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Headers</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP headers of the ``Message``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`dict`, :class:`httpsuite.helpers.Headers`, :class:`None`): New headers of the message.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Headers`: A ``Headers`` object that represents the HTTP header.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r.headers = {&quot;Accept&quot;: &quot;*/*&quot;}</span>
+<span class="sd">               r.headers += {&quot;Host&quot;: &quot;google.com&quot;}</span>
+<span class="sd">               r.headers.Host = &quot;www.google.com&quot;</span>
+<span class="sd">               print(r.headers)</span>
+<span class="sd">               print(r.headers.raw)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                Accept: */*</span>
+<span class="sd">                Host: www.google.com</span>
+
+<span class="sd">                b&#39;Accept: */*\r\nHost: www.google.com\r\n&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Body of the ``Message``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`str`, :class:`bytes`, :class:`int`, :class:`httpsuite.helpers.Item`, :class:`None`): New body of the ``Message``.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Item`: A ``Item`` object that represents the HTTP body.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r.body = &quot;&lt;html&gt;Hello World&lt;/html&gt;&quot;</span>
+<span class="sd">               print(r.body)</span>
+<span class="sd">               print(r.body.raw)</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                &lt;html&gt;Hello World&lt;/html&gt;</span>
+<span class="sd">                b&#39;&lt;html&gt;Hello World&lt;/html&gt;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``Message``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the ``Message``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Bytes representation of the ``Message``.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            This method will return ``Message`` with ``\r\n`` escape characters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bytes: Bytes representation of the ``Message``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; First line of the ``Message``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Item: The first line of the ``Message``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile_first_line</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span>
+
+    <span class="nd">@headers</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">headers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can only set to type that inherits from &#39;dict&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Headers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">Headers</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@body</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@first_line</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_first_line</span><span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_compile_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot; Compiles the first line of the message. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_parse_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot; Parses the first line of the message. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Response</span><span class="p">,</span> <span class="n">Request</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Request</span><span class="p">,</span> <span class="n">Response</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot; Parses a raw ``Message``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message (Union[str, bytes]): The raw string or bytes representation of a</span>
+<span class="sd">                                     HTTP request or response.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[Request, Response]: A ``Request`` or ``Response`` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">Item</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="n">first_line</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="n">Headers</span><span class="p">({})</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+
+        <span class="n">top_frame</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">top_frame</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">top_frame</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">first_line</span> <span class="o">=</span> <span class="n">line</span>
+                <span class="k">elif</span> <span class="sa">b</span><span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">headers</span> <span class="o">+=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">)}</span>
+            <span class="k">elif</span> <span class="n">line</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">body</span> <span class="o">+=</span> <span class="n">line</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">first_line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">),</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="s2">&quot;You cannot use parse with type Message. Use Request or Response.&quot;</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">instance</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arrow</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; String representation of the ``Message``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            arrow (str): String to append to the beginning of every line of the</span>
+<span class="sd">                         return.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the ``Message``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="n">arrow</span><span class="o">=</span><span class="n">arrow</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Request"><a class="viewcode-back" href="../../module/core.html#httpsuite.core.Request">[docs]</a><span class="k">class</span> <span class="nc">Request</span><span class="p">(</span><span class="n">Message</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Object representation of an HTTP request.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        ``__init__`` should *not* be used to *parse* a raw HTTP request.</span>
+<span class="sd">        Instead, one should use ``Request.parse(raw_msg)``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        method (Union[str, bytes, Item]): HTTP request method (i.e. ``GET``, ``POST``, etc).</span>
+<span class="sd">        target (Union[str, bytes, Item]): HTTP request target (i.e. ``/index.html``).</span>
+<span class="sd">        protocol (Union[str, bytes, Item]): HTTP request protocol (i.e. ``HTTP/1.1``).</span>
+<span class="sd">        headers (Union[dict, Headers, None]): HTTP request headers.</span>
+<span class="sd">        body (Union[str, bytes, Item, None]): HTTP request body.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_method&quot;</span><span class="p">,</span> <span class="s2">&quot;_target&quot;</span><span class="p">,</span> <span class="s2">&quot;_protocol&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">target</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">protocol</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">headers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">body</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">protocol</span><span class="p">)</span>
+
+        <span class="n">first_line</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;%b %b %b&quot;</span> <span class="o">%</span> <span class="n">first_line</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compile_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Sets the ``Request`` first line to ``method target protocol`` values. &quot;&quot;&quot;</span>
+        <span class="n">first_line</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;%b %b %b&quot;</span> <span class="o">%</span> <span class="n">first_line</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Sets the ``Request`` first line values ``method target protocol`` to that of the first line.&quot;&quot;&quot;</span>
+        <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">first_line</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP method of the ``Request``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`dict`, :class:`httpsuite.helpers.Item`, :class:`None`): New method of the request.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Item`: A ``Item`` object that represents the HTTP request method.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Request(method=&quot;GET&quot;, target=&quot;/&quot;, protocol=&quot;HTTP/1.1&quot;)</span>
+<span class="sd">               r.method = &quot;POST&quot;</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                → POST / HTTP/1.1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP target of the ``Request``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`dict`, :class:`httpsuite.helpers.Item`, :class:`None`): New target of the request.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Item`: A ``Item`` object that represents the HTTP request method.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Request(method=&quot;GET&quot;, target=&quot;/&quot;, protocol=&quot;HTTP/1.1&quot;)</span>
+<span class="sd">               r.target = &quot;/index.html&quot;</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                → GET /index.html HTTP/1.1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP protocol of the ``Request``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`dict`, :class:`httpsuite.helpers.Item`, :class:`None`): New protocol of the request.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Item`: A ``Item`` object that represents the HTTP request protocol.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Request(method=&quot;GET&quot;, target=&quot;/&quot;, protocol=&quot;HTTP/1.1&quot;)</span>
+<span class="sd">               r.protocol = &quot;HTTP/1.0&quot;</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                → GET / HTTP/1.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span>
+
+    <span class="nd">@method</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@target</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@protocol</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; String representation of the ``Request``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Representation of the ``Request`` object.</span>
+
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Request(</span>
+<span class="sd">                   method=&quot;GET&quot;,</span>
+<span class="sd">                   target=&quot;/&quot;,</span>
+<span class="sd">                   protocol=&quot;HTTP/1.1&quot;,</span>
+<span class="sd">                   headers={&quot;Host&quot;: &quot;www.google.com&quot;, &quot;Connection&quot;: &quot;keep-alive&quot;,},</span>
+<span class="sd">                   body=json.dumps({&quot;hello&quot;: &quot;world&quot;}),</span>
+<span class="sd">               )</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                → GET / HTTP/1.1</span>
+<span class="sd">                → Host: www.google.com</span>
+<span class="sd">                → Connection: keep-alive</span>
+<span class="sd">                → {&quot;hello&quot;: &quot;world&quot;}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="s2">&quot;→&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Response"><a class="viewcode-back" href="../../module/core.html#httpsuite.core.Response">[docs]</a><span class="k">class</span> <span class="nc">Response</span><span class="p">(</span><span class="n">Message</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Object representation of an HTTP response.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        ``__init__`` should *not* be used to *parse* a raw HTTP response.</span>
+<span class="sd">        Instead, one should use ``Response.parse(raw_msg)``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        protocol (Union[str, bytes, Item]): HTTP request protocol (i.e. ``HTTP/1.1``).</span>
+<span class="sd">        status (Union[str, bytes, Item]): HTTP status (i.e. ``200``).</span>
+<span class="sd">        status_msg (Union[str, bytes, Item]): HTTP status message (i.e. ``OK``).</span>
+<span class="sd">        headers (Union[dict, Headers, None]): HTTP request headers.</span>
+<span class="sd">        body (Union[str, bytes, Item, None]): HTTP request body.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_protocol&quot;</span><span class="p">,</span> <span class="s2">&quot;_status&quot;</span><span class="p">,</span> <span class="s2">&quot;_status_msg&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">protocol</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">status</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">status_msg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">headers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">body</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">protocol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status_msg</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">status_msg</span><span class="p">)</span>
+
+        <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status_msg</span><span class="o">.</span><span class="n">raw</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;%b %b %b&quot;</span> <span class="o">%</span> <span class="n">first_line</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compile_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Sets the ``Response`` first line to ``protocol status status_msg``</span>
+<span class="sd">            values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status_msg</span><span class="o">.</span><span class="n">raw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;%b %b %b&quot;</span> <span class="o">%</span> <span class="n">first_line</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Sets the ``Response`` first line values ``protocol status status_msg``</span>
+<span class="sd">            to that of the first line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span> <span class="o">=</span> <span class="n">first_line</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP protocol of the ``Response``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`dict`, :class:`httpsuite.helpers.Item`, :class:`None`): New protocol of the response.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Item`: A ``Item`` object that represents the HTTP response protocol.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Response(protocol=&quot;HTTP/1.1&quot;, status=200, status_msg=&quot;OK&quot;)</span>
+<span class="sd">               r.protocol = &quot;HTTP/1.0&quot;</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                ← HTTP/1.0 200 OK</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP status of the ``Response``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`dict`, :class:`httpsuite.helpers.Item`, :class:`None`): New status of the response.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Item`: A ``Item`` object that represents the HTTP response status.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Response(protocol=&quot;HTTP/1.1&quot;, status=200, status_msg=&quot;OK&quot;)</span>
+<span class="sd">               r.status = 300</span>
+<span class="sd">               r.status_msg = &quot;Continue&quot;</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                ← HTTP/1.1 300 Continue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP status message of the ``Response``.</span>
+
+<span class="sd">        **Setter**:</span>
+<span class="sd">            *Args*:</span>
+<span class="sd">                value (:class:`dict`, :class:`httpsuite.helpers.Item`, :class:`None`): New status message of the response.</span>
+<span class="sd">        **Getter**:</span>
+<span class="sd">            *Returns*:</span>
+<span class="sd">                :class:`httpsuite.helpers.Item`: A ``Item`` object that represents the HTTP response status message.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Response(protocol=&quot;HTTP/1.1&quot;, status=200, status_msg=&quot;OK&quot;)</span>
+<span class="sd">               r.status = 300</span>
+<span class="sd">               r.status_msg = &quot;Continue&quot;</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                ← HTTP/1.0 300 Continue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status_msg</span>
+
+    <span class="nd">@protocol</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@status</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@status_msg</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">status_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status_msg</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; String representation of the ``Response``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Representation of the ``Response`` object.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">               r = Response(</span>
+<span class="sd">                   protocol=&quot;HTTP/1.1&quot;,</span>
+<span class="sd">                   status=200,</span>
+<span class="sd">                   status_msg=&quot;OK&quot;,</span>
+<span class="sd">                   headers={&quot;Host&quot;: &quot;www.google.com&quot;, &quot;Connection&quot;: &quot;keep-alive&quot;,},</span>
+<span class="sd">                   body=json.dumps({&quot;hello&quot;: &quot;world&quot;}),</span>
+<span class="sd">               )</span>
+<span class="sd">               print(r)</span>
+
+<span class="sd">            .. code-block::</span>
+
+<span class="sd">                ← HTTP/1.1 200 OK</span>
+<span class="sd">                ← Host: www.google.com</span>
+<span class="sd">                ← Connection: keep-alive</span>
+<span class="sd">                ← {&quot;hello&quot;: &quot;world&quot;}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="s2">&quot;←&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">httpsuite</a></h1>
+
+
+
+<p class="blurb">Collection of tools to parse, manipulate, and compile raw HTTP messages.</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=synchronizing&repo=httpsuite&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Basic Use.html">Basic Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Advance Use.html">Advance Use</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module/core.html">Core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module/helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module/RFC.html">RFC</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Misc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/Versions.html">Versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/License.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Felipe Faria.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
