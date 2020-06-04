@@ -1,0 +1,6 @@
+pytest
+pytest-cov
+sphinx
+sphinx-rtd-theme
+git+https://github.com/CrossNox/m2r
+coveralls

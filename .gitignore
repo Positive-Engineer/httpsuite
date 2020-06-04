@@ -1,0 +1,15 @@
+# Files
+__pycache__
+.pytest_cache
+.coverage
+
+# Distribution
+/build/
+/dist/
+httpsuite.egg-info/
+
+# OS
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
