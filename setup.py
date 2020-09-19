@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="httpsuite",
-    version="1.0.0",
+    version="1.0.1",
     author="Felipe Faria",
     description="Collection of tools to parse, manipulate, and compile raw HTTP messages.",
     long_description=long_description,

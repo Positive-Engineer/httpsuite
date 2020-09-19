@@ -13,3 +13,7 @@ httpsuite.egg-info/
 ehthumbs.db
 Icon?
 Thumbs.db
+.vscode
+
+# Sphinx
+docs/build/*

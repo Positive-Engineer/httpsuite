@@ -12,7 +12,7 @@ import time
 
 
 def server():
-    """ Simple socket server that uses httpsuite to interpret and reply.
+    """Simple socket server that uses httpsuite to interpret and reply.
 
     1. Opens a new socket.
     2. Binds to 127.0.0.1:8080 and waits until new connection.
@@ -70,7 +70,7 @@ def server():
 
 
 def client():
-    """ Simple socket client that uses httpmodule to request server resource.
+    """Simple socket client that uses httpmodule to request server resource.
 
     1. Opens a new socket.
     2. Connects the server.

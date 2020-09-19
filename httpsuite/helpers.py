@@ -5,10 +5,12 @@ This module contain helper classes that are used throughout ``httpsuite``.
 """
 
 from __future__ import annotations
-from httpsuite.info import ENCODE
+
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Union, Iterable
+from typing import Iterable, Union
+
+from httpsuite.info import ENCODE
 
 
 class Item:
@@ -51,7 +53,7 @@ class Item:
 
     @property
     def string(self) -> str:
-        """ String representation of the ``Item``.
+        """String representation of the ``Item``.
 
         Returns:
             str: String representation of the ``Item`` object.
@@ -60,7 +62,7 @@ class Item:
 
     @property
     def raw(self) -> bytes:
-        """ Bytes representation of the ``Item``.
+        """Bytes representation of the ``Item``.
 
         Returns:
             bytes: Bytes representation of the ``Item`` object.
@@ -68,7 +70,7 @@ class Item:
         return self._item
 
     def __eq__(self, other: Union[str, bytes, int, Item]) -> bool:
-        """ Compares ``Item`` with passed ``other``.
+        """Compares ``Item`` with passed ``other``.
 
         Args:
             other (Union[str, bytes, int, Item]): ``Item`` to be compared.
@@ -86,7 +88,7 @@ class Item:
         return self._item == item
 
     def __add__(self, other: Union[str, bytes, int, Item]) -> Item:
-        """ Adds ``Item`` with passed ``other`` and returns new ``Item``.
+        """Adds ``Item`` with passed ``other`` and returns new ``Item``.
 
         Args:
             other (Union[str, bytes, int, Item]): ``Item`` to be added.
@@ -107,7 +109,7 @@ class Item:
         return Item(self._item + item)
 
     def __iadd__(self, other: Union[str, bytes, int, Item]) -> Item:
-        """ Adds ``Item`` with passed ``other`` and returns ``self`` after addition.
+        """Adds ``Item`` with passed ``other`` and returns ``self`` after addition.
 
         Args:
             other (Union[str, bytes, int, Item]): ``Item`` to be added.
@@ -128,7 +130,7 @@ class Item:
         return self
 
     def __hash__(self) -> int:
-        """ Hash representation of the current ``Item``.
+        """Hash representation of the current ``Item``.
 
         Returns:
             int: Hash representation of the ``Item``.
@@ -136,7 +138,7 @@ class Item:
         return hash(self._item)
 
     def __str__(self) -> str:
-        """ String representation of the ``Item`` object.
+        """String representation of the ``Item`` object.
 
         Returns:
             str: String representation of the `Item` object.
@@ -165,7 +167,7 @@ class Headers(dict):
                 self[Item(k)] = Item(v)
 
     def _compile(self, format: str = "bytes") -> Union[str, bytes]:
-        r""" Compiles the ``Headers`` into the passed format.
+        r"""Compiles the ``Headers`` into the passed format.
 
         Notes:
             When the format is ``bytes`` this function will return the headers
@@ -198,7 +200,7 @@ class Headers(dict):
 
     @property
     def string(self) -> str:
-        """ String representation of the ``Headers``.
+        """String representation of the ``Headers``.
 
         Returns:
             str: String representation of the ``Headers``.
@@ -207,7 +209,7 @@ class Headers(dict):
 
     @property
     def raw(self) -> bytes:
-        r""" Bytes representation of the ``Headers``.
+        r"""Bytes representation of the ``Headers``.
 
         Note:
             This method will return ``Headers`` with ``\r\n`` escape characters.
@@ -218,7 +220,7 @@ class Headers(dict):
         return self._compile(format="bytes")
 
     def __add__(self, other: Union[dict, Headers]) -> Headers:
-        """ Adds item with passed ``other`` and returns new ``Headers``.
+        """Adds item with passed ``other`` and returns new ``Headers``.
 
         Args:
             other (Union[dict, Headers]): ``Headers`` or ``dict`` to be added.
@@ -241,7 +243,7 @@ class Headers(dict):
             return copy
 
     def __iadd__(self, other: Union[dict, Headers]) -> Headers:
-        """ Adds current headers with passed `other` and returns self.
+        """Adds current headers with passed `other` and returns self.
 
         Args:
             other (Union[dict, Headers]): ``Headers`` or ``dict`` to be added.
@@ -258,7 +260,7 @@ class Headers(dict):
         return self
 
     def __setattr__(self, key: str, value: str) -> None:
-        """ Sets a new attribute inside ``Headers``.
+        """Sets a new attribute inside ``Headers``.
 
         Notes:
             If ``_`` is present in the key it gets replaced with ``-``. This is
@@ -269,7 +271,7 @@ class Headers(dict):
         self[Item(key_mod)] = Item(value)
 
     def __getattr__(self, key: str) -> Item:
-        """ Gets attribute inside ``Headers``.
+        """Gets attribute inside ``Headers``.
 
         Notes:
             If ``_`` is present in the key it gets replaced with ``-``. This is
@@ -287,7 +289,7 @@ class Headers(dict):
             return None
 
     def __str__(self) -> str:
-        """ String representation of the ``Headers``.
+        """String representation of the ``Headers``.
 
         Returns:
             str: String representation of the ``Headers``.
@@ -297,7 +299,7 @@ class Headers(dict):
 
 @dataclass(frozen=True)
 class TwoWayFrozenDict(Mapping):
-    """ A frozen dictionary with two-way capabilities.
+    """A frozen dictionary with two-way capabilities.
 
     Interface that locks a dictionary in place after initilization, and provides
     accessability via key and value.
@@ -316,7 +318,7 @@ class TwoWayFrozenDict(Mapping):
         self.__dict__.update({Item(v): Item(k) for k, v in data.items()})
 
     def __getattribute__(self, key: str) -> Item:
-        """ Gets attribute inside ``Headers``.
+        """Gets attribute inside ``Headers``.
 
         Notes:
             If ``_`` is present in the key it gets replaced with a blank space.
@@ -341,7 +343,7 @@ class TwoWayFrozenDict(Mapping):
         return super().__getattribute__(key)
 
     def __contains__(self, key: str) -> bool:
-        """ Checks if the key is inside ``TwoWayFrozenDict``.
+        """Checks if the key is inside ``TwoWayFrozenDict``.
 
         Returns:
             bool: Boolean corresponding to if the passed key is inside the
@@ -354,7 +356,7 @@ class TwoWayFrozenDict(Mapping):
             return False
 
     def __getitem__(self, key: str) -> Item:
-        """ Retrieves item that's mapped with the passed key.
+        """Retrieves item that's mapped with the passed key.
 
         Returns:
             Item: ``Item`` corresponding to the passed key.
@@ -362,7 +364,7 @@ class TwoWayFrozenDict(Mapping):
         return self.__dict__[Item(key)]
 
     def __iter__(self) -> Iterable[Item]:
-        """ Returns an iterable representation of the ``TwoWayFrozenDict``.
+        """Returns an iterable representation of the ``TwoWayFrozenDict``.
 
         Returns:
             Iterable[Item]: Iterable of items.
@@ -370,7 +372,7 @@ class TwoWayFrozenDict(Mapping):
         return iter(self.__dict__)
 
     def __len__(self) -> int:
-        """ Returns the length of the ``TwoWayFrozenDict``.
+        """Returns the length of the ``TwoWayFrozenDict``.
 
         Returns:
             int: Length of the ``TwoWayFrozenDict``.
@@ -379,7 +381,7 @@ class TwoWayFrozenDict(Mapping):
         return len(self.__dict__)
 
     def __str__(self) -> str:
-        """ String representation of the ``TwoWayFrozenDict``.
+        """String representation of the ``TwoWayFrozenDict``.
 
         Returns:
             str: String representation of the ``TwoWayFrozenDict``.
@@ -391,7 +393,7 @@ class FrozenSet(frozenset):
     """ A frozen set with pretty-print. """
 
     def __str__(self):
-        """ String representation of the ``FrozenSet``.
+        """String representation of the ``FrozenSet``.
 
         Returns:
             str: String representation of the ``FrozenSet``.

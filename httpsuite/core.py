@@ -1,14 +1,17 @@
 """ Interfaces to parse, manipulate, and compile raw HTTP messages. """
 
 from __future__ import annotations
-from httpsuite.helpers import Item, Headers
-from typing import Union, NoReturn
-import textwrap
+
 import abc
+import socket
+import textwrap
+from typing import NoReturn, Union
+
+from httpsuite.helpers import Headers, Item
 
 
 class Message(abc.ABC):
-    """ Base class representing an HTTP message.
+    """Base class representing an HTTP message.
 
     Note:
         ``Messages`` is an abstract class that both ``Request`` and ``Response``
@@ -43,7 +46,7 @@ class Message(abc.ABC):
         self._body = Item(body)
 
     def _compile(self, format: str = "bytes", arrow: str = "") -> str:
-        """ Compiles the ``Message`` into the given format.
+        """Compiles the ``Message`` into the given format.
 
         Note:
             The ``arrow`` argument only works when ``format`` is ``string``.
@@ -92,7 +95,7 @@ class Message(abc.ABC):
 
     @property
     def headers(self) -> Headers:
-        r""" HTTP headers of the ``Message``.
+        r"""HTTP headers of the ``Message``.
 
         **Setter**:
             *Args*:
@@ -122,7 +125,7 @@ class Message(abc.ABC):
 
     @property
     def body(self) -> Item:
-        """ Body of the ``Message``.
+        """Body of the ``Message``.
 
         **Setter**:
             *Args*:
@@ -148,7 +151,7 @@ class Message(abc.ABC):
 
     @property
     def string(self) -> str:
-        """ String representation of the ``Message``.
+        """String representation of the ``Message``.
 
         Returns:
             str: String representation of the ``Message``.
@@ -158,7 +161,7 @@ class Message(abc.ABC):
 
     @property
     def raw(self) -> bytes:
-        r""" Bytes representation of the ``Message``.
+        r"""Bytes representation of the ``Message``.
 
         Note:
             This method will return ``Message`` with ``\r\n`` escape characters.
@@ -170,7 +173,7 @@ class Message(abc.ABC):
 
     @property
     def first_line(self) -> Item:
-        """ First line of the ``Message``.
+        """First line of the ``Message``.
 
         Returns:
             Item: The first line of the ``Message``.
@@ -211,7 +214,7 @@ class Message(abc.ABC):
     def parse(
         cls: Union[Response, Request], message: Union[str, bytes]
     ) -> Union[Request, Response]:
-        """ Parses a raw ``Message``.
+        """Parses a raw ``Message``.
 
         Args:
             message (Union[str, bytes]): The raw string or bytes representation of a
@@ -252,8 +255,8 @@ class Message(abc.ABC):
 
         return instance
 
-    def __str__(self, arrow: str) -> str:
-        """ String representation of the ``Message``.
+    def _string(self, arrow: str) -> str:
+        """String representation of the ``Message``.
 
         Args:
             arrow (str): String to append to the beginning of every line of the
@@ -267,7 +270,7 @@ class Message(abc.ABC):
 
 
 class Request(Message):
-    """ Object representation of an HTTP request.
+    """Object representation of an HTTP request.
 
     Note:
         ``__init__`` should *not* be used to *parse* a raw HTTP request.
@@ -310,7 +313,7 @@ class Request(Message):
 
     @property
     def method(self) -> Item:
-        r""" HTTP method of the ``Request``.
+        r"""HTTP method of the ``Request``.
 
         **Setter**:
             *Args*:
@@ -334,7 +337,7 @@ class Request(Message):
 
     @property
     def target(self) -> Item:
-        r""" HTTP target of the ``Request``.
+        r"""HTTP target of the ``Request``.
 
         **Setter**:
             *Args*:
@@ -358,7 +361,7 @@ class Request(Message):
 
     @property
     def protocol(self) -> Item:
-        r""" HTTP protocol of the ``Request``.
+        r"""HTTP protocol of the ``Request``.
 
         **Setter**:
             *Args*:
@@ -393,7 +396,7 @@ class Request(Message):
         self._protocol = Item(value)
 
     def __str__(self) -> str:
-        r""" String representation of the ``Request``.
+        r"""String representation of the ``Request``.
 
         Returns:
             str: Representation of the ``Request`` object.
@@ -418,11 +421,11 @@ class Request(Message):
                 → Connection: keep-alive
                 → {"hello": "world"}
         """
-        return super().__str__("→")
+        return super()._string("→")
 
 
 class Response(Message):
-    """ Object representation of an HTTP response.
+    """Object representation of an HTTP response.
 
     Note:
         ``__init__`` should *not* be used to *parse* a raw HTTP response.
@@ -454,22 +457,22 @@ class Response(Message):
         super().__init__(b"%b %b %b" % first_line, headers, body)
 
     def _compile_first_line(self) -> None:
-        """ Sets the ``Response`` first line to ``protocol status status_msg``
-            values.
+        """Sets the ``Response`` first line to ``protocol status status_msg``
+        values.
         """
         first_line = self._protocol.raw, self._status.raw, self._status_msg.raw
         self._first_line = Item(b"%b %b %b" % first_line)
 
     def _parse_first_line(self) -> None:
-        """ Sets the ``Response`` first line values ``protocol status status_msg``
-            to that of the first line.
+        """Sets the ``Response`` first line values ``protocol status status_msg``
+        to that of the first line.
         """
         first_line = self._first_line.raw.split(b" ")
         self.protocol, self.status, self.status_msg = first_line
 
     @property
     def protocol(self) -> Item:
-        r""" HTTP protocol of the ``Response``.
+        r"""HTTP protocol of the ``Response``.
 
         **Setter**:
             *Args*:
@@ -493,7 +496,7 @@ class Response(Message):
 
     @property
     def status(self) -> Item:
-        r""" HTTP status of the ``Response``.
+        r"""HTTP status of the ``Response``.
 
         **Setter**:
             *Args*:
@@ -518,7 +521,7 @@ class Response(Message):
 
     @property
     def status_msg(self) -> Item:
-        r""" HTTP status message of the ``Response``.
+        r"""HTTP status message of the ``Response``.
 
         **Setter**:
             *Args*:
@@ -554,7 +557,7 @@ class Response(Message):
         self._status_msg = Item(value)
 
     def __str__(self) -> str:
-        r""" String representation of the ``Response``.
+        r"""String representation of the ``Response``.
 
         Returns:
             str: Representation of the ``Response`` object.
@@ -578,4 +581,4 @@ class Response(Message):
                 ← Connection: keep-alive
                 ← {"hello": "world"}
         """
-        return super().__str__("←")
+        return super()._string("←")
