@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>httpsuite.core &#8212; httpsuite 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -34,14 +35,17 @@
 <span></span><span class="sd">&quot;&quot;&quot; Interfaces to parse, manipulate, and compile raw HTTP messages. &quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">from</span> <span class="nn">httpsuite.helpers</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">Headers</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">NoReturn</span>
-<span class="kn">import</span> <span class="nn">textwrap</span>
+
 <span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">httpsuite.helpers</span> <span class="kn">import</span> <span class="n">Headers</span><span class="p">,</span> <span class="n">Item</span>
 
 
 <div class="viewcode-block" id="Message"><a class="viewcode-back" href="../../module/core.html#httpsuite.core.Message">[docs]</a><span class="k">class</span> <span class="nc">Message</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Base class representing an HTTP message.</span>
+    <span class="sd">&quot;&quot;&quot;Base class representing an HTTP message.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        ``Messages`` is an abstract class that both ``Request`` and ``Response``</span>
@@ -76,7 +80,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">arrow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Compiles the ``Message`` into the given format.</span>
+        <span class="sd">&quot;&quot;&quot;Compiles the ``Message`` into the given format.</span>
 
 <span class="sd">        Note:</span>
 <span class="sd">            The ``arrow`` argument only works when ``format`` is ``string``.</span>
@@ -125,7 +129,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">headers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Headers</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP headers of the ``Message``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;HTTP headers of the ``Message``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -155,7 +159,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Body of the ``Message``.</span>
+        <span class="sd">&quot;&quot;&quot;Body of the ``Message``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -181,7 +185,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``Message``.</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``Message``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: String representation of the ``Message``.</span>
@@ -191,7 +195,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Bytes representation of the ``Message``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Bytes representation of the ``Message``.</span>
 
 <span class="sd">        Note:</span>
 <span class="sd">            This method will return ``Message`` with ``\r\n`` escape characters.</span>
@@ -203,7 +207,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; First line of the ``Message``.</span>
+        <span class="sd">&quot;&quot;&quot;First line of the ``Message``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Item: The first line of the ``Message``.</span>
@@ -244,7 +248,7 @@
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Response</span><span class="p">,</span> <span class="n">Request</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Request</span><span class="p">,</span> <span class="n">Response</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot; Parses a raw ``Message``.</span>
+        <span class="sd">&quot;&quot;&quot;Parses a raw ``Message``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            message (Union[str, bytes]): The raw string or bytes representation of a</span>
@@ -285,8 +289,8 @@
 
         <span class="k">return</span> <span class="n">instance</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arrow</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``Message``.</span>
+    <span class="k">def</span> <span class="nf">_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arrow</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``Message``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            arrow (str): String to append to the beginning of every line of the</span>
@@ -300,7 +304,7 @@
 
 
 <div class="viewcode-block" id="Request"><a class="viewcode-back" href="../../module/core.html#httpsuite.core.Request">[docs]</a><span class="k">class</span> <span class="nc">Request</span><span class="p">(</span><span class="n">Message</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Object representation of an HTTP request.</span>
+    <span class="sd">&quot;&quot;&quot;Object representation of an HTTP request.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        ``__init__`` should *not* be used to *parse* a raw HTTP request.</span>
@@ -343,7 +347,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP method of the ``Request``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;HTTP method of the ``Request``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -367,7 +371,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP target of the ``Request``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;HTTP target of the ``Request``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -391,7 +395,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP protocol of the ``Request``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;HTTP protocol of the ``Request``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -426,7 +430,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; String representation of the ``Request``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;String representation of the ``Request``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: Representation of the ``Request`` object.</span>
@@ -451,11 +455,11 @@
 <span class="sd">                → Connection: keep-alive</span>
 <span class="sd">                → {&quot;hello&quot;: &quot;world&quot;}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="s2">&quot;→&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_string</span><span class="p">(</span><span class="s2">&quot;→&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Response"><a class="viewcode-back" href="../../module/core.html#httpsuite.core.Response">[docs]</a><span class="k">class</span> <span class="nc">Response</span><span class="p">(</span><span class="n">Message</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Object representation of an HTTP response.</span>
+    <span class="sd">&quot;&quot;&quot;Object representation of an HTTP response.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        ``__init__`` should *not* be used to *parse* a raw HTTP response.</span>
@@ -487,22 +491,22 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;%b %b %b&quot;</span> <span class="o">%</span> <span class="n">first_line</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_compile_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Sets the ``Response`` first line to ``protocol status status_msg``</span>
-<span class="sd">            values.</span>
+        <span class="sd">&quot;&quot;&quot;Sets the ``Response`` first line to ``protocol status status_msg``</span>
+<span class="sd">        values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status_msg</span><span class="o">.</span><span class="n">raw</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;%b %b %b&quot;</span> <span class="o">%</span> <span class="n">first_line</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_parse_first_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Sets the ``Response`` first line values ``protocol status status_msg``</span>
-<span class="sd">            to that of the first line.</span>
+        <span class="sd">&quot;&quot;&quot;Sets the ``Response`` first line values ``protocol status status_msg``</span>
+<span class="sd">        to that of the first line.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">first_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_line</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span> <span class="o">=</span> <span class="n">first_line</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP protocol of the ``Response``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;HTTP protocol of the ``Response``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -526,7 +530,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP status of the ``Response``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;HTTP status of the ``Response``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -551,7 +555,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">status_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; HTTP status message of the ``Response``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;HTTP status message of the ``Response``.</span>
 
 <span class="sd">        **Setter**:</span>
 <span class="sd">            *Args*:</span>
@@ -587,7 +591,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_status_msg</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; String representation of the ``Response``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;String representation of the ``Response``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: Representation of the ``Response`` object.</span>
@@ -611,7 +615,7 @@
 <span class="sd">                ← Connection: keep-alive</span>
 <span class="sd">                ← {&quot;hello&quot;: &quot;world&quot;}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="s2">&quot;←&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_string</span><span class="p">(</span><span class="s2">&quot;←&quot;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -641,8 +645,8 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../writeups/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../writeups/Basic Use.html">Basic Use</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../writeups/Advance Use.html">Advance Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Basic%20Use.html">Basic Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Advance%20Use.html">Advance Use</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Package</span></p>
 <ul>
@@ -653,6 +657,7 @@
 <p class="caption"><span class="caption-text">Misc</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc/Versions.html">Versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/Versions.html#v1"><code class="docutils literal notranslate"><span class="pre">v1</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../misc/License.html">License</a></li>
 </ul>
 

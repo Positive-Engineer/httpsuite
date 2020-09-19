@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>httpsuite.helpers &#8212; httpsuite 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -38,10 +39,12 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">from</span> <span class="nn">httpsuite.info</span> <span class="kn">import</span> <span class="n">ENCODE</span>
+
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">httpsuite.info</span> <span class="kn">import</span> <span class="n">ENCODE</span>
 
 
 <div class="viewcode-block" id="Item"><a class="viewcode-back" href="../../module/helpers.html#httpsuite.helpers.Item">[docs]</a><span class="k">class</span> <span class="nc">Item</span><span class="p">:</span>
@@ -84,7 +87,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``Item``.</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``Item``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: String representation of the ``Item`` object.</span>
@@ -93,7 +96,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Bytes representation of the ``Item``.</span>
+        <span class="sd">&quot;&quot;&quot;Bytes representation of the ``Item``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            bytes: Bytes representation of the ``Item`` object.</span>
@@ -101,7 +104,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Compares ``Item`` with passed ``other``.</span>
+        <span class="sd">&quot;&quot;&quot;Compares ``Item`` with passed ``other``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other (Union[str, bytes, int, Item]): ``Item`` to be compared.</span>
@@ -119,7 +122,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">==</span> <span class="n">item</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Adds ``Item`` with passed ``other`` and returns new ``Item``.</span>
+        <span class="sd">&quot;&quot;&quot;Adds ``Item`` with passed ``other`` and returns new ``Item``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other (Union[str, bytes, int, Item]): ``Item`` to be added.</span>
@@ -140,7 +143,7 @@
         <span class="k">return</span> <span class="n">Item</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_item</span> <span class="o">+</span> <span class="n">item</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Item</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Adds ``Item`` with passed ``other`` and returns ``self`` after addition.</span>
+        <span class="sd">&quot;&quot;&quot;Adds ``Item`` with passed ``other`` and returns ``self`` after addition.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other (Union[str, bytes, int, Item]): ``Item`` to be added.</span>
@@ -161,7 +164,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Hash representation of the current ``Item``.</span>
+        <span class="sd">&quot;&quot;&quot;Hash representation of the current ``Item``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            int: Hash representation of the ``Item``.</span>
@@ -169,7 +172,7 @@
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_item</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``Item`` object.</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``Item`` object.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: String representation of the `Item` object.</span>
@@ -198,7 +201,7 @@
                 <span class="bp">self</span><span class="p">[</span><span class="n">Item</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bytes&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Compiles the ``Headers`` into the passed format.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compiles the ``Headers`` into the passed format.</span>
 
 <span class="sd">        Notes:</span>
 <span class="sd">            When the format is ``bytes`` this function will return the headers</span>
@@ -231,7 +234,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``Headers``.</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``Headers``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: String representation of the ``Headers``.</span>
@@ -240,7 +243,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Bytes representation of the ``Headers``.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Bytes representation of the ``Headers``.</span>
 
 <span class="sd">        Note:</span>
 <span class="sd">            This method will return ``Headers`` with ``\r\n`` escape characters.</span>
@@ -251,7 +254,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Headers</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Adds item with passed ``other`` and returns new ``Headers``.</span>
+        <span class="sd">&quot;&quot;&quot;Adds item with passed ``other`` and returns new ``Headers``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other (Union[dict, Headers]): ``Headers`` or ``dict`` to be added.</span>
@@ -274,7 +277,7 @@
             <span class="k">return</span> <span class="n">copy</span>
 
     <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Headers</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Headers</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Adds current headers with passed `other` and returns self.</span>
+        <span class="sd">&quot;&quot;&quot;Adds current headers with passed `other` and returns self.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other (Union[dict, Headers]): ``Headers`` or ``dict`` to be added.</span>
@@ -291,7 +294,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Sets a new attribute inside ``Headers``.</span>
+        <span class="sd">&quot;&quot;&quot;Sets a new attribute inside ``Headers``.</span>
 
 <span class="sd">        Notes:</span>
 <span class="sd">            If ``_`` is present in the key it gets replaced with ``-``. This is</span>
@@ -302,7 +305,7 @@
         <span class="bp">self</span><span class="p">[</span><span class="n">Item</span><span class="p">(</span><span class="n">key_mod</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Gets attribute inside ``Headers``.</span>
+        <span class="sd">&quot;&quot;&quot;Gets attribute inside ``Headers``.</span>
 
 <span class="sd">        Notes:</span>
 <span class="sd">            If ``_`` is present in the key it gets replaced with ``-``. This is</span>
@@ -320,7 +323,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``Headers``.</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``Headers``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: String representation of the ``Headers``.</span>
@@ -330,7 +333,7 @@
 
 <div class="viewcode-block" id="TwoWayFrozenDict"><a class="viewcode-back" href="../../module/helpers.html#httpsuite.helpers.TwoWayFrozenDict">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TwoWayFrozenDict</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A frozen dictionary with two-way capabilities.</span>
+    <span class="sd">&quot;&quot;&quot;A frozen dictionary with two-way capabilities.</span>
 
 <span class="sd">    Interface that locks a dictionary in place after initilization, and provides</span>
 <span class="sd">    accessability via key and value.</span>
@@ -349,7 +352,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">Item</span><span class="p">(</span><span class="n">v</span><span class="p">):</span> <span class="n">Item</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
     <span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Gets attribute inside ``Headers``.</span>
+        <span class="sd">&quot;&quot;&quot;Gets attribute inside ``Headers``.</span>
 
 <span class="sd">        Notes:</span>
 <span class="sd">            If ``_`` is present in the key it gets replaced with a blank space.</span>
@@ -374,7 +377,7 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Checks if the key is inside ``TwoWayFrozenDict``.</span>
+        <span class="sd">&quot;&quot;&quot;Checks if the key is inside ``TwoWayFrozenDict``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            bool: Boolean corresponding to if the passed key is inside the</span>
@@ -387,7 +390,7 @@
             <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Retrieves item that&#39;s mapped with the passed key.</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves item that&#39;s mapped with the passed key.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Item: ``Item`` corresponding to the passed key.</span>
@@ -395,7 +398,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">Item</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot; Returns an iterable representation of the ``TwoWayFrozenDict``.</span>
+        <span class="sd">&quot;&quot;&quot;Returns an iterable representation of the ``TwoWayFrozenDict``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Iterable[Item]: Iterable of items.</span>
@@ -403,7 +406,7 @@
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Returns the length of the ``TwoWayFrozenDict``.</span>
+        <span class="sd">&quot;&quot;&quot;Returns the length of the ``TwoWayFrozenDict``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            int: Length of the ``TwoWayFrozenDict``.</span>
@@ -412,7 +415,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``TwoWayFrozenDict``.</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``TwoWayFrozenDict``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: String representation of the ``TwoWayFrozenDict``.</span>
@@ -424,7 +427,7 @@
     <span class="sd">&quot;&quot;&quot; A frozen set with pretty-print. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; String representation of the ``FrozenSet``.</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the ``FrozenSet``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: String representation of the ``FrozenSet``.</span>
@@ -459,8 +462,8 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../writeups/Quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../writeups/Basic Use.html">Basic Use</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../writeups/Advance Use.html">Advance Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Basic%20Use.html">Basic Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writeups/Advance%20Use.html">Advance Use</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Package</span></p>
 <ul>
@@ -471,6 +474,7 @@
 <p class="caption"><span class="caption-text">Misc</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc/Versions.html">Versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc/Versions.html#v1"><code class="docutils literal notranslate"><span class="pre">v1</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../misc/License.html">License</a></li>
 </ul>
 
